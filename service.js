@@ -2,25 +2,33 @@
 const USERS_KEY = 'USERS_KEY';
 const STATE_KEY = 'STATE_KEY';
 
-const getUsers = function() {
-	let ret = '';
-	ret = uni.getStorageSync(USERS_KEY);
-	if (!ret) {
-		ret = '[]';
-	}
-	return JSON.parse(ret);
+const HOST = "http://119.45.38.130:8000/api";
+const login = async function(name, pwd) {
+	// let ret = '';
+	// ret = uni.getStorageSync(USERS_KEY);
+	// if (!ret) {
+	// 	ret = '[]';
+	// }
+	// return JSON.parse(ret);
+	
+	var [error, res] = await uni.request({
+		url: '/api/user/login',
+		method: "POST",
+		data: {
+		    name: name,
+		    password: pwd,
+		}
+	});
+	console.log("res", res.data);
+	console.log("error", error);
+	return res.data;
 }
 
 const addUser = function(userInfo) {
-	let users = getUsers();
-	users.push({
-		account: userInfo.account,
-		password: userInfo.password
-	});
-	uni.setStorageSync(USERS_KEY, JSON.stringify(users));
+	
 }
 
 export default {
-	getUsers,
+	login,
 	addUser
 }
