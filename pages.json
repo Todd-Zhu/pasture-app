@@ -3,7 +3,7 @@
 		{
 			"path": "pages/main/main",
 			"style": {
-				"navigationBarTitleText": "登录模板"
+				"navigationBarTitleText": "农事记录"
 			}
 		}, {
 			"path": "pages/login/login",
@@ -13,12 +13,20 @@
 		}, {
 			"path": "pages/user/user",
 			"style": {
-				"navigationBarTitleText": "我的"
+				"navigationBarTitleText": "我的信息"
 			}
 		}
 	    ,{
             "path" : "pages/event/event",
-            "style" : {}
+            "style" : {
+				"navigationBarTitleText": "添加农事记录"
+			}
+        }
+		,{
+            "path" : "pages/event/edit",
+            "style" : {
+				"navigationBarTitleText": "编辑农事记录"
+			}
         }
     ],
 	"tabBar": {
@@ -31,14 +39,12 @@
 				"iconPath": "static/img/tabbar/home.png",
 				"selectedIconPath": "static/img/tabbar/homeactive.png",
 				"text": "农事记录"
-			}, 
-			//#ifndef MP-WEIXIN
+			},
 			{
 				"pagePath": "pages/event/event",
 				"iconPath": "static/img/tabbar/add.png",
 				"selectedIconPath": "static/img/tabbar/addactive.png"
 			},
-			//#endif
 			{
 				"pagePath": "pages/user/user",
 				"iconPath": "static/img/tabbar/me.png",
