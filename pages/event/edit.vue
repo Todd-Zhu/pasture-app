@@ -1,7 +1,7 @@
 <template>
 	<view class="content">
 		<scroll-view>
-			<form @submit="formSubmit" @reset="formReset">
+			<form @submit="formSubmit">
 				<view class="uni-form-item uni-column">
 					<view class="title">产品批次</view>
 					<!-- <input class="uni-input" name="pici" v-model="formData.productId" placeholder="请选择产品批次" /> -->
@@ -40,7 +40,7 @@
 				</view>
 				<view class="uni-btn-v">
 					<button form-type="submit">提交</button>
-					<button type="default" form-type="reset">重置</button>
+					<!-- <button type="default" form-type="reset">重置</button> -->
 				</view>
 			</form>
 		</scroll-view>
@@ -48,6 +48,8 @@
 </template>
 
 <script>
+import service from "@/service.js";
+	
 export default {
 	onLoad(option) {
 		//option为object类型，会序列化上个页面传递的参数
@@ -68,17 +70,17 @@ export default {
 				checkDate: now,
 				checkUserId: ''
 			},
-			productIndex: nulls,
+			productIndex: null,
 			productOption: [
 				"批次一",
 				"批次二",
 			],
-			eventIndex: nulls,
+			eventIndex: null,
 			eventOption: [
 				"注水",
 				"培养"
 			],
-			userIndex: nulls,
+			userIndex: null,
 			userOption: [
 				"小黑",
 				"小白"
@@ -94,7 +96,59 @@ export default {
 			return this.getDate('end');
 		}
 	},
+	mounted(){
+		this.getProductPiciOption();
+		this.getEventOption();
+		this.getUserOption();
+		
+		this.getEventInfo();
+	},
 	methods: {
+		async getEventInfo(){
+			const id = this.formData.id;
+			const res = await service.getEventInfo(id);
+			if(res.success){
+				this.formData = res.data;
+			}else{
+				uni.showToast({
+					icon: 'none',
+					title: res.errorMsg,
+				});
+			}
+		},
+		async getProductPiciOption(){
+			const res = await service.getProductArchive();
+			if(res.success){
+				this.productOption = res.data;
+			}else{
+				uni.showToast({
+					icon: 'none',
+					title: res.errorMsg,
+				});
+			}
+		},
+		async getEventOption(){
+			const res = await service.getEventNames();
+			if(res.success){
+				this.eventOption = res.data;
+			}else{
+				uni.showToast({
+					icon: 'none',
+					title: res.errorMsg,
+				});
+			}
+		},
+		async getUserOption(){
+			const res = await service.getUsers();
+			if(res.success){
+				this.userOption = res.data;
+			}else{
+				uni.showToast({
+					icon: 'none',
+					title: res.errorMsg,
+				});
+			}
+		},
 		onChangeProduct(e){
 			this.productIndex = e.target.value;
 			this.formData.productId = e.target.value;
@@ -117,10 +171,14 @@ export default {
 				content: '表单数据内容：' + JSON.stringify(formdata),
 				showCancel: false
 			});
+			
+			uni.navigateBack({
+			    delta: 1
+			});
 		},
-		formReset: function(e) {
-			console.log('清空数据');
-		},
+		// formReset: function(e) {
+		// 	console.log('清空数据');
+		// },
 		getDate(type) {
 			const date = new Date();
 			let year = date.getFullYear();
@@ -175,5 +233,8 @@ export default {
 	display: block;
 	min-height: 1.4em;
 	overflow: hidden;
+}
+.uni-btn-v{
+	margin-top: 30rpx;
 }
 </style>
