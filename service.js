@@ -15,7 +15,7 @@ const login = async function(name, pwd) {
 const getEventList = async function(params) {
 	const queryParams = {
 		page: params.page,
-		page_size: params.limit
+		page_size: params.size
 	};
 	var [error, res] = await uni.request({
 		url: '/api/event_record/search',

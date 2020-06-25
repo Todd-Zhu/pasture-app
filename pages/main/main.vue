@@ -21,7 +21,8 @@
 <script>
 import { mapState } from 'vuex';
 import uniIcons from '@/components/uni-icons/uni-icons.vue';
-import uniPagination from '@/components/uni-pagination/uni-pagination.vue'
+import uniPagination from '@/components/uni-pagination/uni-pagination.vue';
+import service from '@/service.js';
 
 export default {
 	components: { uniIcons, uniPagination },
@@ -58,59 +59,80 @@ export default {
 		const title = [
 			{
 				label: '农产品',
-				value: 'product',
-				width: 25,
+				value: 'productName',
+				width: 20
 			},
 			{
 				label: '农事名称',
 				value: 'eventName',
-				width: 35,
+				width: 35
 			},
 			{
 				label: '日期',
-				value: 'date',
-				width: 30,
+				value: 'checkDate',
+				width: 40
 			},
 			{
 				label: '',
 				value: 'action',
-				width: 10,
+				width: 5
 			}
 		];
 		const tableData = [
-			{
-				id: "1",
-				product: '香菇',
-				eventName: '拌料',
-				date: '2020/06/20',
-				action: ''
-			},
-			{
-				id: "2",
-				product: '香菇',
-				eventName: '注水',
-				date: '2020/06/21',
-				action: ''
-			}
+			// {
+			// 	id: "1",
+			// 	product: '香菇',
+			// 	eventName: '拌料',
+			// 	date: '2020/06/20',
+			// 	action: ''
+			// },
+			// {
+			// 	id: "2",
+			// 	product: '香菇',
+			// 	eventName: '注水',
+			// 	date: '2020/06/21',
+			// 	action: ''
+			// }
 		];
 		return {
 			title: title,
 			tableData: tableData,
 			pageData: {
 				current: 1,
-				total: 30,
-				size: 15
+				total: 0,
+				size: 10
 			}
 		};
 	},
-	methods:{
-		onEditEvent(id){
-			uni.navigateTo({
-			    url: `/pages/event/edit?id=${id}`
-			});
+	mounted() {
+		this.getEventList();
+	},
+	methods: {
+		async getEventList() {
+			const param = {
+				page: this.pageData.current,
+				size: this.pageData.size
+			};
+			const res = await service.getEventList(param);
+			if (res.success) {
+				let data = res.body.results;
+				this.tableData = data;
+				this.pageData.total = data.count;
+			} else {
+				uni.showToast({
+					icon: 'none',
+					title: res.errorMsg
+				});
+			}
 		},
-		onChangePage(type,current){
-			console.log(type, current);
+		onChangePage(type, current) {
+			this.pageData.current = current;
+			this.getEventList();
+		},
+		onEditEvent(id) {
+			uni.navigateTo({
+				url: `/pages/event/edit?id=${id}`
+			});
 		}
 	}
 };
@@ -129,11 +151,12 @@ export default {
 .mtable__thead__td {
 	box-sizing: border-box;
 	position: relative;
-	padding: 0 20rpx;
+	/* padding: 0 20rpx; */
 	min-width: 100rpx;
 	height: 88rpx;
 	line-height: 88rpx;
 	font-size: 30rpx;
+	white-space: nowrap;
 	color: #666;
 	border: 1rpx solid #e5e5e5;
 	border-bottom: none;

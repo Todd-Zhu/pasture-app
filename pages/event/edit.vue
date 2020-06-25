@@ -5,15 +5,15 @@
 				<view class="uni-form-item uni-column">
 					<view class="title">产品批次</view>
 					<!-- <input class="uni-input" name="pici" v-model="formData.productId" placeholder="请选择产品批次" /> -->
-					<picker @change="onChangeProduct" :value="productIndex" :range="productOption">
-						<view class="uni-input">{{ productOption[productIndex] || "请选择产品批次" }}</view>
+					<picker @change="onChangeProduct" :value="productIndex" :range="productOption" range-key="productName">
+						<view class="uni-input">{{ productName || '请选择产品批次' }}</view>
 					</picker>
 				</view>
 				<view class="uni-form-item uni-column">
 					<view class="title">农事名称</view>
 					<!-- <input class="uni-input" name="name" v-model="formData.eventId" placeholder="请输入农事名称" /> -->
-					<picker @change="onChangeEvent" :value="eventIndex" :range="eventOption">
-						<view class="uni-input">{{ eventOption[eventIndex] || "请选择农事名称" }}</view>
+					<picker @change="onChangeEvent" :value="eventIndex" :range="eventOption" range-key="name">
+						<view class="uni-input">{{ eventName || '请选择农事名称' }}</view>
 					</picker>
 				</view>
 				<view class="uni-form-item uni-column">
@@ -30,8 +30,8 @@
 				<view class="uni-form-item uni-column">
 					<view class="title">操作人员</view>
 					<!-- <input class="uni-input" name="user" v-model="formData.checkUserId" placeholder="请选择操作人员" /> -->
-					<picker @change="onChangeUser" :value="userIndex" :range="userOption">
-						<view class="uni-input">{{ userOption[userIndex] || "请选择操作人员" }}</view>
+					<picker @change="onChangeUser" :value="userIndex" :range="userOption" range-key="name">
+						<view class="uni-input">{{ userName || '请选择操作人员' }}</view>
 					</picker>
 				</view>
 				<view class="uni-form-item uni-column">
@@ -48,8 +48,8 @@
 </template>
 
 <script>
-import service from "@/service.js";
-	
+import service from '@/service.js';
+
 export default {
 	onLoad(option) {
 		//option为object类型，会序列化上个页面传递的参数
@@ -70,22 +70,12 @@ export default {
 				checkDate: now,
 				checkUserId: ''
 			},
-			productIndex: null,
-			productOption: [
-				"批次一",
-				"批次二",
-			],
-			eventIndex: null,
-			eventOption: [
-				"注水",
-				"培养"
-			],
-			userIndex: null,
-			userOption: [
-				"小黑",
-				"小白"
-			],
-			eventDesc: ''
+			productIndex: 0,
+			productOption: ['批次一', '批次二'],
+			eventIndex: 0,
+			eventOption: ['注水', '培养'],
+			userIndex: 0,
+			userOption: ['小黑', '小白']
 		};
 	},
 	computed: {
@@ -94,72 +84,103 @@ export default {
 		},
 		endDate() {
 			return this.getDate('end');
+		},
+		productName() {
+			if(this.productOption.length > 0 && this.productIndex > -1){
+				const row = this.productOption[this.productIndex];
+				return row.productName;
+			}
+			return "";
+		},
+		eventName() {
+			if(this.eventOption.length > 0 && this.eventIndex > -1){
+				const row = this.eventOption[this.eventIndex];
+				return row.name;
+			}
+			return "";
+		},
+		eventDesc() {
+			if(this.eventOption.length > 0 && this.eventIndex > -1){
+				const row = this.eventOption[this.eventIndex];
+				return row.describe;
+			}
+			return "";
+		},
+		userName() {
+			if(this.userOption.length > 0 && this.userIndex > -1){
+				const row = this.userOption[this.userIndex];
+				return row.name;
+			}
+			return "";
 		}
 	},
-	mounted(){
+	mounted() {
 		this.getProductPiciOption();
 		this.getEventOption();
 		this.getUserOption();
-		
+
 		this.getEventInfo();
 	},
 	methods: {
-		async getEventInfo(){
+		async getEventInfo() {
 			const id = this.formData.id;
 			const res = await service.getEventInfo(id);
-			if(res.success){
-				this.formData = res.data;
-			}else{
+			if (res.success) {
+				this.formData = res.body;
+			} else {
 				uni.showToast({
 					icon: 'none',
-					title: res.errorMsg,
+					title: res.errorMsg
 				});
 			}
 		},
-		async getProductPiciOption(){
+		async getProductPiciOption() {
 			const res = await service.getProductArchive();
-			if(res.success){
-				this.productOption = res.data;
-			}else{
+			if (res.success) {
+				let data = res.body.results;
+				this.productOption = data;
+			} else {
 				uni.showToast({
 					icon: 'none',
-					title: res.errorMsg,
+					title: res.errorMsg
 				});
 			}
 		},
-		async getEventOption(){
+		async getEventOption() {
 			const res = await service.getEventNames();
-			if(res.success){
-				this.eventOption = res.data;
-			}else{
+			if (res.success) {
+				let data = res.body.results;
+				this.eventOption = data;
+			} else {
 				uni.showToast({
 					icon: 'none',
-					title: res.errorMsg,
+					title: res.errorMsg
 				});
 			}
 		},
-		async getUserOption(){
+		async getUserOption() {
 			const res = await service.getUsers();
-			if(res.success){
-				this.userOption = res.data;
-			}else{
+			if (res.success) {
+				let data = res.body.results;
+				this.userOption = data;
+			} else {
 				uni.showToast({
 					icon: 'none',
-					title: res.errorMsg,
+					title: res.errorMsg
 				});
 			}
 		},
-		onChangeProduct(e){
+		onChangeProduct(e) {
 			this.productIndex = e.target.value;
 			this.formData.productId = e.target.value;
 		},
-		onChangeEvent(e){
+		onChangeEvent(e) {
 			this.eventIndex = e.target.value;
-			this.formData.eventId= e.target.value;
+			this.formData.eventId = e.target.value;
 		},
-		onChangeUser(e){
+		onChangeUser(e) {
 			this.userIndex = e.target.value;
-			this.formData.checkUserId= e.target.value;
+			this.formData.checkUserId = e.target.value;
 		},
 		onDateChange(e) {
 			this.formData.checkDate = e.target.value;
@@ -171,9 +192,9 @@ export default {
 				content: '表单数据内容：' + JSON.stringify(formdata),
 				showCancel: false
 			});
-			
+
 			uni.navigateBack({
-			    delta: 1
+				delta: 1
 			});
 		},
 		// formReset: function(e) {
@@ -184,7 +205,7 @@ export default {
 			let year = date.getFullYear();
 			let month = date.getMonth() + 1;
 			let day = date.getDate();
-		
+
 			if (type === 'start') {
 				year = year - 1;
 			} else if (type === 'end') {
@@ -234,7 +255,7 @@ export default {
 	min-height: 1.4em;
 	overflow: hidden;
 }
-.uni-btn-v{
+.uni-btn-v {
 	margin-top: 30rpx;
 }
 </style>
