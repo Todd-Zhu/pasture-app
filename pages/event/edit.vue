@@ -36,7 +36,11 @@
 				</view>
 				<view class="uni-form-item uni-column">
 					<view class="title">图片记录</view>
-					<input class="uni-input" v-model="formData.img" placeholder="请选择图片" />
+					<!-- <input class="uni-input" v-model="formData.img" placeholder="请选择图片" /> -->
+					<image v-show="formData.img && formData.img != ''" @tap="onChooseImg" class="form-img" mode="aspectFit" :src="formData.img" @error="imageError"></image>
+					<view v-show="formData.img == ''" @tap="onChooseImg" class="form-img">
+						<uni-icons type="plusempty" size="44" color="#222222"></uni-icons>
+					</view>
 				</view>
 				<view class="uni-btn-v">
 					<button form-type="submit">提交</button>
@@ -49,8 +53,10 @@
 
 <script>
 import service from '@/service.js';
+import uniIcons from '@/components/uni-icons/uni-icons.vue';
 
 export default {
+	components: { uniIcons },
 	onLoad(option) {
 		//option为object类型，会序列化上个页面传递的参数
 		console.log(option.id); //打印出上个页面传递的参数。
@@ -68,14 +74,15 @@ export default {
 				productId: '',
 				eventId: '',
 				checkDate: now,
-				checkUserId: ''
+				checkUserId: '',
+				img: ''
 			},
-			productIndex: 0,
-			productOption: ['批次一', '批次二'],
-			eventIndex: 0,
-			eventOption: ['注水', '培养'],
-			userIndex: 0,
-			userOption: ['小黑', '小白']
+			productIndex: undefined,
+			productOption: [],
+			eventIndex: undefined,
+			eventOption: [],
+			userIndex: undefined,
+			userOption: []
 		};
 	},
 	computed: {
@@ -86,32 +93,32 @@ export default {
 			return this.getDate('end');
 		},
 		productName() {
-			if(this.productOption.length > 0 && this.productIndex > -1){
+			if (this.productOption.length > 0 && this.productIndex > -1) {
 				const row = this.productOption[this.productIndex];
 				return row.productName;
 			}
-			return "";
+			return '';
 		},
 		eventName() {
-			if(this.eventOption.length > 0 && this.eventIndex > -1){
+			if (this.eventOption.length > 0 && this.eventIndex > -1) {
 				const row = this.eventOption[this.eventIndex];
 				return row.name;
 			}
-			return "";
+			return '';
 		},
 		eventDesc() {
-			if(this.eventOption.length > 0 && this.eventIndex > -1){
+			if (this.eventOption.length > 0 && this.eventIndex > -1) {
 				const row = this.eventOption[this.eventIndex];
 				return row.describe;
 			}
-			return "";
+			return '';
 		},
 		userName() {
-			if(this.userOption.length > 0 && this.userIndex > -1){
+			if (this.userOption.length > 0 && this.userIndex > -1) {
 				const row = this.userOption[this.userIndex];
 				return row.name;
 			}
-			return "";
+			return '';
 		}
 	},
 	mounted() {
@@ -124,14 +131,16 @@ export default {
 	methods: {
 		async getEventInfo() {
 			const id = this.formData.id;
-			const res = await service.getEventInfo(id);
-			if (res.success) {
-				this.formData = res.body;
-			} else {
-				uni.showToast({
-					icon: 'none',
-					title: res.errorMsg
-				});
+			if(id){
+				const res = await service.getEventInfo(id);
+				if (res.success) {
+					this.formData = res.body;
+				} else {
+					uni.showToast({
+						icon: 'none',
+						title: res.errorMsg
+					});
+				}
 			}
 		},
 		async getProductPiciOption() {
@@ -187,15 +196,63 @@ export default {
 		},
 		formSubmit: function(e) {
 			console.log('form发生了submit事件，携带数据为：' + JSON.stringify(e.detail.value));
-			var formdata = this.formData;
-			uni.showModal({
-				content: '表单数据内容：' + JSON.stringify(formdata),
-				showCancel: false
-			});
-
-			uni.navigateBack({
-				delta: 1
-			});
+			var formData = this.formData;
+			if (formData.productId === '') {
+				uni.showToast({
+					icon: 'none',
+					title: '请选择产品批次'
+				});
+				return false;
+			}
+			if (formData.eventId === '') {
+				uni.showToast({
+					icon: 'none',
+					title: '请选择农事名称'
+				});
+				return false;
+			}
+			if (formData.checkDate === '') {
+				uni.showToast({
+					icon: 'none',
+					title: '请选择实施日期'
+				});
+				return false;
+			}
+			if (formData.checkUserId === '') {
+				uni.showToast({
+					icon: 'none',
+					title: '请选择操作人员'
+				});
+				return false;
+			}
+			
+			if(formData.img === ''){
+				uni.showToast({
+					icon: 'none',
+					title: '请选择图片'
+				});
+				return false;
+			}else{
+				uni.uploadFile({
+					url: 'https://www.example.com/upload', //仅为示例，非真实的接口地址
+					filePath: formData.img,
+					name: 'file',
+					formData: {
+						'user': 'test'
+					},
+					success: (uploadFileRes) => {
+						console.log(uploadFileRes.data);
+						
+						uni.navigateBack({
+							delta: 1
+						});
+					}
+				});
+				
+				uni.navigateBack({
+					delta: 1
+				});
+			}
 		},
 		// formReset: function(e) {
 		// 	console.log('清空数据');
@@ -214,6 +271,21 @@ export default {
 			month = month > 9 ? month : '0' + month;
 			day = day > 9 ? day : '0' + day;
 			return `${year}-${month}-${day}`;
+		},
+		imageError(){
+			
+		},
+		onChooseImg(){
+			const _this = this;
+			uni.chooseImage({
+			    count: 1, //默认9
+			    sizeType: ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
+			    sourceType: ['album'], //从相册选择
+			    success: function (res) {
+			        console.log(JSON.stringify(res.tempFilePaths));
+					_this.formData.img = res.tempFilePaths[0];
+			    }
+			});
 		}
 	}
 };
@@ -257,5 +329,13 @@ export default {
 }
 .uni-btn-v {
 	margin-top: 30rpx;
+}
+.form-img{
+	width: 400rpx;
+	height: 400rpx;
+	border: 1px dashed #888;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 </style>
