@@ -76,7 +76,7 @@
 				}else{
 					uni.showToast({
 						icon: 'none',
-						title: res.errorMsg,
+						title: "登录失败" + (res.errorMsg || ""),
 					});
 				}
 				// const validUser = service.getUsers().some(function(user) {
@@ -97,13 +97,13 @@
 				 * 强制登录时使用reLaunch方式跳转过来
 				 * 返回首页也使用reLaunch方式
 				 */
-				// if (this.forcedLogin) {
+				if (this.forcedLogin) {
 					uni.reLaunch({
 						url: '../main/main',
 					});
-				// } else {
-				// 	uni.navigateBack();
-				// }
+				} else {
+					uni.navigateBack();
+				}
 
 			}
 		},
