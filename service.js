@@ -1,7 +1,11 @@
+const HOST="http://119.45.38.130:8000";
+// const HOST=""; //H5用，需要配置manifest.json中的h5 proxy
 const login = async function(name, pwd) {
 	var [error, res] = await uni.request({
-		url: '/api/user/login',
+		url: HOST + '/api/user/login',
 		method: "POST",
+		sslVerify: false,
+	    withCredentials:false,
 		data: {
 			name: name,
 			password: pwd,
@@ -18,7 +22,7 @@ const getEventList = async function(params) {
 		page_size: params.size
 	};
 	var [error, res] = await uni.request({
-		url: '/api/event_record/search',
+		url: HOST + '/api/event_record/search',
 		method: "GET",
 		data: queryParams
 	});
@@ -32,7 +36,7 @@ const getEventInfo = async function(id) {
 		id: id
 	};
 	var [error, res] = await uni.request({
-		url: '/api/event_record/info',
+		url: HOST + '/api/event_record/info',
 		method: "GET",
 		data: queryParams
 	});
@@ -44,7 +48,7 @@ const getEventInfo = async function(id) {
 const createEvent = async function(params) {
 	const queryParams = params;
 	var [error, res] = await uni.request({
-		url: '/api/event_record/create',
+		url: HOST + '/api/event_record/create',
 		method: "POST",
 		data: queryParams
 	});
@@ -56,7 +60,7 @@ const createEvent = async function(params) {
 const updateEvent = async function(params) {
 	const queryParams = params;
 	var [error, res] = await uni.request({
-		url: '/api/event_record/update',
+		url: HOST + '/api/event_record/update',
 		method: "POST",
 		data: queryParams
 	});
@@ -68,7 +72,7 @@ const updateEvent = async function(params) {
 const getUsers = async function(params) {
 	const queryParams = { page: 1, page_size: 50 };
 	var [error, res] = await uni.request({
-		url: '/api/user/search',
+		url: HOST + '/api/user/search',
 		method: "GET",
 		data: queryParams
 	});
@@ -80,7 +84,7 @@ const getUsers = async function(params) {
 const getEventNames = async function(params) {
 	const queryParams = { page: 1, page_size: 50 };
 	var [error, res] = await uni.request({
-		url: '/api/event/search',
+		url: HOST + '/api/event/search',
 		method: "GET",
 		data: queryParams
 	});
@@ -92,7 +96,7 @@ const getEventNames = async function(params) {
 const getProductArchive = async function(params) {
 	const queryParams = { page: 1, page_size: 50 };
 	var [error, res] = await uni.request({
-		url: '/api/product_archive/search',
+		url: HOST + '/api/product_archive/search',
 		method: "GET",
 		data: queryParams
 	});
