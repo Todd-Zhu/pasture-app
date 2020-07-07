@@ -115,8 +115,8 @@ export default {
 			};
 			const res = await service.getEventList(param);
 			if (res.success) {
-				let data = res.body.results;
-				this.tableData = data;
+				const data = res.body;
+				this.tableData = data.results;
 				this.pageData.total = data.count;
 			} else {
 				uni.showToast({

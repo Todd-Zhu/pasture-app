@@ -29,6 +29,10 @@
 				});
 			},
 			bindLogout() {
+				uni.setStorage({
+					key : "token",
+					data: ""
+				})
 				this.logout();
 				/**
 				 * 如果需要强制登录跳转回登录页面

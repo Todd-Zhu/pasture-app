@@ -37,7 +37,7 @@
 		},
 		computed: mapState(['forcedLogin']),
 		methods: {
-			...mapMutations(['login']),
+			...mapMutations(['login','setToken']),
 			initPosition() {
 				/**
 				 * 使用 absolute 定位，并且设置 bottom 值进行定位。软键盘弹出时，底部会因为窗口变化而被顶上来。
@@ -72,8 +72,19 @@
 				
 				const res = await service.login(this.account, this.password);
 				if(res.success){
-					this.toMain(this.account);
+					let data = res.body;
+					const token = data.token;
+					uni.setStorage({
+						key : "token",
+						data: token
+					})
+					
+					this.toMain(this.account, token);
 				}else{
+					uni.setStorage({
+						key : "token",
+						data: ""
+					})
 					uni.showToast({
 						icon: 'none',
 						title: "登录失败" + (res.errorMsg || ""),
@@ -91,8 +102,9 @@
 				// 	});
 				// }
 			},
-			toMain(userName) {
+			toMain(userName, token) {
 				this.login(userName);
+				this.setToken(token);
 				/**
 				 * 强制登录时使用reLaunch方式跳转过来
 				 * 返回首页也使用reLaunch方式
